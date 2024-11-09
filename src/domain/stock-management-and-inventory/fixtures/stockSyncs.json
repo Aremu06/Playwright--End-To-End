@@ -1,0 +1,53 @@
+  [
+    {
+      "test_case": "Testing stock sync FULL for ESN",
+      "shop": "ESN",
+      "syncType": "FULL"
+    },
+    {
+      "test_case": "Testing stock sync FULL for ESN30",
+      "shop": "ESN30",
+      "syncType": "FULL"
+    },
+    {
+      "test_case": "Testing stock sync FULL for MEMBER",
+      "shop": "MEMBER",
+      "syncType": "FULL"
+    },
+    {
+      "test_case": "Testing stock sync FULL for B2B",
+      "shop": "B2B",
+      "syncType": "FULL"
+    },
+    {
+      "test_case": "Testing stock sync FULL for AMAZON",
+      "shop": "AMAZON",
+      "syncType": "FULL"
+    },
+    {
+      "test_case": "Testing stock sync LAST_RUN for ESN",
+      "shop": "ESN",
+      "syncType": "LAST_RUN"
+    },
+    {
+      "test_case": "Testing stock sync LAST_RUN for ESN30",
+      "shop": "ESN30",
+      "syncType": "LAST_RUN"
+    },
+    {
+      "test_case": "Testing stock sync LAST_RUN for MEMBER",
+      "shop": "MEMBER",
+      "syncType": "LAST_RUN"
+    },
+    {
+      "test_case": "Testing stock sync LAST_RUN for B2B",
+      "shop": "B2B",
+      "syncType": "LAST_RUN"
+    },
+    {
+      "test_case": "Testing stock sync LAST_RUN for AMAZON",
+      "shop": "AMAZON",
+      "syncType": "LAST_RUN"
+    }
+  ]
+

@@ -1,0 +1,258 @@
+public class FirstNonRepeatingCharacter {
+    public static void main(String[] args) {
+        System.out.println("First Non-Repeating Character is: " + firstNonRepeating("bacabad"));
+    }
+
+    public static char firstNonRepeating(String s) {
+        // Loop through the string
+        for (int i = 0; i < s.length(); i++) {
+            // If the first occurrence and last occurrence of the character are the same
+            if (s.indexOf(s.charAt(i)) == s.lastIndexOf(s.charAt(i))) {
+                return s.charAt(i); // Return the first non-repeating character
+            }
+        }
+        return '-'; // Return '-' if no non-repeating character is found
+    }
+}
+
+
+// Function declaration as a separate statement within the main JavaScript code
+funtion abc(){
+      return 5;
+}
+
+// Function expression create inside an expression or some other construct
+
+var a = function abc() {
+      return 5;
+}
+ Let & var are used for variable and method declaration in JavaScript
+
+// How do you reverse an array?
+
+int[] a = { 1, 2, 7, 6, 4, 9, 12 };  // Initial array
+
+for (int t = 0; t < a.length / 2; t++) {  // Looping until the middle of the array
+    int tmp = a[t];                       // Store the value at position 't' in a temporary variable
+    a[t] = a[a.length - t - 1];           // Replace the value at position 't' with the value at the symmetrical position from the end
+    a[a.length - t - 1] = tmp;            // Place the temporary value (original 't') in the symmetrical position
+}
+
+
+
+
+// How do you get the matching elements in an integer array?
+
+unction findDuplicates(arr) {
+  const frequencyMap = new Map();
+  const duplicates = [];
+
+  // Count occurrences of each element
+  for (let num of arr) {
+    frequencyMap.set(num, (frequencyMap.get(num) || 0) + 1);
+  }
+
+  // Find elements with more than 1 occurrence
+  for (let [key, value] of frequencyMap) {
+    if (value > 1) {
+      duplicates.push(key);
+    }
+  }
+
+  return duplicates;
+}
+
+// Example usage
+const numbers = [1, 2, 3, 4, 5, 3, 2, 6, 7, 1];
+const result = findDuplicates(numbers);
+console.log(result);  // Output: [1, 2, 3]
+
+
+//How do you reverse a string in Java?
+String str = "hello";           // The original string
+String reverse = "";            // An empty string to hold the reversed result
+int length = str.length();      // Calculate the length of the original string
+
+for (int i = 0; i < length; i++) {  // Loop through each character of the string
+     reverse = str.charAt(i) + reverse;  // Add the current character in front of the reverse string
+}
+
+System.out.println(reverse);  // Output the reversed string
+
+
+//How do you determine if a string is a palindrome?
+
+
+if (str.equals(reverse)) {
+
+    System.out.println("Palindrome");
+
+} else {
+
+    System.out.println("Not Palindrome");
+
+}
+
+// Find the number of occurrences of a character in a String?
+
+function countCharacterOccurrence(str, char) {
+  let count = 0;
+  
+  // Loop through each character in the string
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === char) {
+      count++; // Increment count if the character matches
+    }
+  }
+  
+  return count;
+}
+
+// Example usage
+const str = "hello world";
+const char = "l";
+const result = countCharacterOccurrence(str, char);
+console.log(result);  // Output: 3
+
+
+//How do you calculate the number of vowels and consonants in a String?
+
+int vowels = 0;
+int consonants = 0;
+for (int k = 0; k < str.length(); k++) {
+    char c = str.charAt(k);
+    if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+        vowels++;
+    else
+        consonants++;
+}
+System.out.println("Vowel count is " + vowels);
+System.out.println("Consonant count is: " + consonants);
+
+
+// How would you implement the bubble sort algorithm?
+
+int[] a = { 1, 2, 7, 6, 4, 9, 12 };
+for (int k = 0; k < a.length; k++) {
+    for (int l = 0; l < a.length - l - 1; l++) {
+        if (a[l] > a[l + 1]) {
+            int t = a[l];
+            a[l] = a[l + 1];
+            a[l + 1] = t;
+        }
+    }
+}
+
+
+//How to select first e.g 100 result from a tableName : 
+- SELECT TOP 100 From table name;
+- Using fetch clause : Select col1, col2, col3 from tableName Order by col3 desc fetch first 100 rows only;
+
+
+// Table – EmployeeDetails
+EmpId	FullName	      ManagerId	       DateOfJoining	        City
+121	     John Snow	        321	             01/31/2019	           Toronto
+321	     Walter White	    986	             01/30/2020	          California
+421	     Kuldeep Rana	    876	             27/11/2021	           New Delhi
+
+// Table – EmployeeSalary
+EmpId	Project	Salary	Variable
+121	          P1	       8000	  500
+321	          P2	     10000	  1000
+421	          P1	      12000	  0
+
+
+SELECT * FROM EmployerDetails WHERE ManagerId = 321;
+
+join tableName tn on tn.columnName = t2.columnName
+
+SELECT * FROM EmployeeDetails ORDER BY DateOfJoining ASC;+
+
+
+
+// Write test plan, test cases to group invoices.
+			// Algorithm:
+			// Group by: Seller, Buyer, Currency, MaturityDate.
+			// Validation: Maturity date > current date, ID is unique,
+ 
+			// File: Invoices
+			// ID,Seller,Buyer,Amount,Currency,IssueDate,MaturityDate
+			// 1,Seller1,Buyer1,50,USD,2024.01.01,2025.01.01
+			// 2,Seller1,Buyer1,100,USD,2024.01.02,2025.01.01
+			// 3,Seller2,Buyer1,150,USD,2024.01.02,2025.01.01
+			// 4,Seller1,Buyer1,200,EUR,2024.01.02,2025.01.01
+			// 5,Seller1,Buyer1,100,USD,2024.01.02,2025.01.02
+			// 6,Seller1,Buyer1,100,USD,2024.01.02,2024.01.01
+
+
+
+
+
+// please implement any sort algorithm using any programming language, 
+// or just simply write a code to sort array of 10 elements ascending
+
+public class BubbleSort {
+    public static void main(String[] args) {
+        // Initialize an array of 10 elements
+        int[] array = {5, 2, 9, 1, 5, 6, 3, 7, 4, 8};
+
+        // Call the bubbleSort function to sort the array
+        bubbleSort(array);
+
+        // Print the sorted array
+        System.out.println("Sorted array in ascending order:");
+        for (int num : array) {
+            System.out.print(num + " ");
+        }
+    }
+
+    // Bubble Sort algorithm to sort an array in ascending order
+    public static void bubbleSort(int[] array) {
+        int n = array.length;
+        boolean swapped;
+        
+        // Outer loop: go through the array n-1 times
+        for (int i = 0; i < n - 1; i++) {
+            swapped = false;
+
+            // Inner loop: compare adjacent elements and swap if needed
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (array[j] > array[j + 1]) {
+                    // Swap the elements if the current element is greater than the next
+                    int temp = array[j];
+                    array[j] = array[j + 1];
+                    array[j + 1] = temp;
+                    swapped = true;
+                }
+            }
+
+            // If no elements were swapped, the array is already sorted
+            if (!swapped) {
+                break;
+            }
+        }
+    }
+}
+
+
+// employees(id, name, surname)
+// payments(empid,paymentSum,paymentDate)
+// Make a query that returns 2 columns: Name+Surname of employee, sum of all received in 2021 payments
+
+SELECT 
+    CONCAT(e.name, ' ', e.surname) AS EmployeeFullName, 
+    SUM(p.paymentSum) AS TotalPayments2021
+FROM 
+    employees e
+JOIN 
+    payments p ON e.id = p.empid
+WHERE 
+    YEAR(p.paymentDate) = 2021
+GROUP BY 
+    e.id, e.name, e.surname;
+
+
+// please provide single find / grep command to export all errors (mask “ERROR”) into a single file
+
+grep "ERROR" your-log-file.log > errors-output.txt
+

@@ -1,0 +1,45 @@
+{
+  "name": "end-to-end-tests",
+  "version": "1.0.0",
+  "description": "End 2 End test repository for TQGG",
+  "main": "index.js",
+  "scripts": {
+    "checks": "npm run lint && npm run prettier",
+    "fix": "npm run prettier-fix",
+    "lint": "npx eslint -c eslint.config.js src tests",
+    "prettier": "prettier -c \"{src,tests}/**/*.ts\"",
+    "prettier-fix": "prettier -w \"{src,tests}/**/*.ts\""
+  },
+  "keywords": [],
+  "author": "QA Team",
+  "license": "",
+  "dependencies": {
+    "@aws-sdk/client-lambda": "^3.616.0",
+    "@aws-sdk/client-s3": "^3.617.0",
+    "@aws-sdk/credential-providers": "^3.617.0",
+    "@types/node": "^20.14.11",
+    "ajv": "^8.17.1",
+    "chromium": "^3.0.3",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "otpauth": "^9.3.2",
+    "uuid": "^10.0.0",
+    "winston": "^3.13.1"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.8.0",
+    "@playwright/test": "^1.45.3",
+    "allure-commandline": "^2.29.0",
+    "allure-playwright": "^3.0.0-beta.7",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-playwright": "^1.6.2",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.8.0",
+    "prettier": "3.3.3",
+    "typescript-eslint": "^7.17.0"
+  }
+}

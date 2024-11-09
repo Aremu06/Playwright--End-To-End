@@ -1,0 +1,72 @@
+name: Run e2e tests
+
+run-name: Run the following tests ${{ inputs.TESTFILES }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      TESTFILES:
+        description: 'Pass in the test files that you want to run - example: "tests/<path>/" OR "tests/<path>/<file>.spec.ts"'
+        required: true
+        type: string
+        default: ""
+      
+      REPORTER:
+        description: 'Run with default list reporter or html reporter'
+        required: true
+        type: choice
+        options:
+          - "list"
+          - "html"
+        default: "list"
+        
+      DEBUG_SETTING:
+        description: 'Run with or without debug output'
+        required: true
+        type: choice
+        options:
+          - ENABLED
+          - DISABLED
+        default: DISABLED
+
+permissions:
+  id-token: write # This is required for requesting the JWT through OIDC
+  contents: write # This is required for dependabot auto-merge
+  pull-requests: write # This is required for dependabot auto-merge
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Build CI image
+        run: |
+          docker build \
+            --provenance=false \
+            --file docker/Dockerfile \
+            --tag ci \
+            --target development \
+            --load \
+            .
+
+      - name: Run e2e tests
+        run: |
+          set -e
+          if [[ "${{ inputs.DEBUG_SETTING }}" == "ENABLED" ]]; then
+            DEBUG=--debug
+          fi
+          if [[ "${{ inputs.TESTFILES }}" == "" ]]; then
+            exit 1
+          fi
+          docker run npx playwright test ${{ inputs.TESTFILES }} --reporter=${{ inputs.REPORTER }} $DEBUG

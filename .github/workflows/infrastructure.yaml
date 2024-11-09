@@ -1,0 +1,41 @@
+name: Infrastructure
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "infrastructure/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "infrastructure/**"
+
+permissions:
+  id-token: write
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  deploy-testing:
+    uses: The-Quality-Group/cilib/.github/workflows/lib-ci-terraform.yaml@v5
+    secrets: inherit
+    with:
+      BUILD_ENVIRONMENT: Testing
+
+  deploy-staging:
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref_name == 'main'
+    uses: The-Quality-Group/cilib/.github/workflows/lib-ci-terraform.yaml@v5
+    secrets: inherit
+    with:
+      BUILD_ENVIRONMENT: Staging
+
+  deploy-production:
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref_name == 'main'
+    uses: The-Quality-Group/cilib/.github/workflows/lib-ci-terraform.yaml@v5
+    secrets: inherit
+    with:
+      BUILD_ENVIRONMENT: Production

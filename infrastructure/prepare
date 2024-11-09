@@ -1,0 +1,201 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# cd to script location, just in case, to ensure relative paths below actually
+# work; thanks to https://stackoverflow.com/a/246128
+# shellcheck disable=SC2164 # if this `cd` fails, then so should this script!
+[[ "${BASH_SOURCE+x}" ]] &&
+  cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1
+
+[[ "${BASH_SOURCE+x}" ]] ||
+  {
+    ls __init.tf >/dev/null 2>&1 || {
+      echo ERROR: Could not automatically CD into the directory of this script
+      echo because you\'re not running Bash and __init.tf was not found in
+      echo current working directory. If you\'re using a shell other than Bash,
+      echo you need to make sure to source this script while your current working
+      echo directory is where this script is located.
+      echo
+      read -rs "?Press enter to exit..." </dev/tty
+      exit 0
+    }
+  }
+
+is_main_stack() {
+  [[ "$(get_substack_name)" == "main" ]]
+}
+
+is_main_stack_dirname() {
+  [[ "$1" == "infrastructure" ||
+    "$1" == "infra" ||
+    "$1" == "terraform" ]]
+}
+
+get_substack_name() {
+  PDIR_NAME="$(basename "$(dirname "$PWD")")"
+  DIR_NAME="$(basename "$PWD")"
+
+  is_main_stack_dirname "$DIR_NAME" && ! is_main_stack_dirname "$PDIR_NAME" &&
+    {
+      echo "main"
+      return 0
+    }
+
+  ! is_main_stack_dirname "$DIR_NAME" && is_main_stack_dirname "$PDIR_NAME" && {
+    echo "$DIR_NAME"
+    return 0
+  }
+
+  echo "ERROR: directory name does not conform to convention, don't know what to do" >&2
+  return 1
+}
+
+if [ -f ../../terraform.env ]; then
+  # shellcheck source=/dev/null
+  source ../../terraform.env
+fi
+
+if [ -f ../terraform.env ]; then
+  # shellcheck source=/dev/null
+  source ../terraform.env
+fi
+
+if [ -f terraform.env ]; then
+  # shellcheck source=/dev/null
+  source terraform.env
+fi
+
+[[ "${AWS_REGION+x}" ]] ||
+  AWS_REGION="$(aws configure get region)"
+
+[[ "${BUILD_ENVIRONMENT+x}" ]] ||
+  BUILD_ENVIRONMENT="testing"
+BE_LOWER="$(echo "$BUILD_ENVIRONMENT" | tr '[:upper:]' '[:lower:]')"
+
+[[ "${REPO_NAME+x}" ]] || {
+  # shellcheck disable=SC2001
+  [[ "${GITHUB_REPOSITORY+x}" ]] &&
+    REPO_NAME="$(echo "${GITHUB_REPOSITORY/The-Quality-Group\//}" |
+      sed 's/^\(service\|svc\)-//')" ||
+    REPO_NAME="$(git remote get-url origin | rev | cut -d'/' -f1 | rev |
+      sed 's/.git$//' | sed 's/^\(service\|svc\)-//')"
+}
+
+[[ "${SERVICE_NAME+x}" ]] || {
+  is_main_stack && SERVICE_NAME="$REPO_NAME" || SERVICE_NAME="$(get_substack_name)"
+}
+
+[[ "${TF_BACKEND_BUCKET+x}" ]] ||
+  TF_BACKEND_BUCKET="tqg-tf.${TF_BACKEND_BUCKET_SERVICE_NAME:-${SERVICE_NAME}}.${BE_LOWER}"
+
+[[ "${TF_BACKEND_BUCKET_KEY+x}" ]] ||
+  TF_BACKEND_BUCKET_KEY="states/${REPO_NAME}/${AWS_REGION}/${SERVICE_NAME}.tfstate"
+
+TF_BACKEND_BUCKET_OUTPUTS_KEY="${TF_BACKEND_BUCKET_KEY/states/outputs}"
+
+[[ "${TF_BACKEND_DYNAMODB_TABLE+x}" ]] ||
+  TF_BACKEND_DYNAMODB_TABLE="terraform_locks"
+
+set +e
+
+TF_PROVIDERS_CONTENT="$(mktemp)"
+# shellcheck disable=SC2012 # doesn't matter here as we only want to know if
+# there are any files at all
+[[ -d "providers" && "$(ls -1 providers | wc -l)" -gt 0 ]] && {
+  for provider in providers/*; do
+    envsubst <"$provider" >>"$TF_PROVIDERS_CONTENT"
+  done
+}
+TF_PROVIDERS="$(cat "$TF_PROVIDERS_CONTENT")"
+
+export AWS_REGION
+export TF_AWS_PROVIDER_VERSION
+export TF_BACKEND_BUCKET
+export TF_BACKEND_BUCKET_KEY
+export TF_BACKEND_DYNAMODB_TABLE
+export TF_PROVIDERS
+
+envsubst <__terraform.tf.tpl >|__terraform.tf
+
+cat <<EOT >|__locals.tf
+locals {
+  build_environment = "${BUILD_ENVIRONMENT}"
+  repo_name         = "${REPO_NAME}"
+  service_name      = "${SERVICE_NAME}"
+}
+EOT
+
+# editorconfig-checker-disable
+cat <<EOT >|__remote-state.txt
+## Remote State
+
+[Usage example](https://developer.hashicorp.com/terraform/language/state/remote-state-data#example-usage-remote-backend)
+
+\`\`\`hcl
+data "terraform_remote_state" "${SERVICE_NAME}" {
+  backend = "s3"
+
+  config = {
+    bucket = "${TF_BACKEND_BUCKET}"
+    key    = "${TF_BACKEND_BUCKET_OUTPUTS_KEY}"
+    region = "eu-central-1"
+  }
+}
+\`\`\`
+
+**Attention**: Replace the environment "testing" in the bucket name
+accordingly!
+EOT
+# editorconfig-checker-enable
+
+rm "$TF_PROVIDERS_CONTENT"
+unset TF_AWS_PROVIDER_VERSION
+unset TF_BACKEND_BUCKET
+unset TF_BACKEND_BUCKET_KEY
+unset TF_BACKEND_DYNAMODB_TABLE
+unset TF_PROVIDERS
+
+[[ -f __.auto.tfvars ]] && rm __.auto.tfvars
+
+[[ -f "tfvars/environment/${BE_LOWER}".tfvars ]] && {
+  envsubst <"tfvars/environment/${BE_LOWER}".tfvars >>__.auto.tfvars
+}
+
+[[ -f "tfvars/region/${AWS_REGION}".tfvars ]] && {
+  envsubst <"tfvars/region/${AWS_REGION}".tfvars >>__.auto.tfvars
+}
+
+# Thanks to
+# https://stackoverflow.com/a/73686578
+# https://stackoverflow.com/a/7167115
+if [[ "${TF_MODULE_TOKEN+x}" ]]; then
+  echo running on github action - need to tell git how to fetch stuff
+  git config --global url."https://token:${TF_MODULE_TOKEN}@github.com/The-Quality-Group/".insteadOf "ssh://git@github.com/The-Quality-Group/" # editorconfig-checker-disable-line
+fi
+
+mkdir -p .terraform
+touch .terraform/terraform.tfstate
+rm .terraform/terraform.tfstate
+
+unset BUILD_ENVIRONMENT REPO_NAME SERVICE_NAME
+
+[[ -f requirements.txt ]] && {
+  echo requirements.txt detected - trying to set up Python virtual environment
+  [[ -d .venv ]] && rm -rf .venv || :
+  python3 -m venv .venv
+  # shellcheck disable=SC1901
+  . .venv/bin/activate
+  pip install -qr requirements.txt
+}
+
+[[ "${TF_GITHUB_TOKEN+x}" ]] &&
+  GH_PROVIDER_CONFFILE="$(grep -l '# TF_GITHUB_TOKEN' -- *.tf)" &&
+  sed -i "s/# TF_GITHUB_TOKEN/token = \"${TF_GITHUB_TOKEN}\"/" "${GH_PROVIDER_CONFFILE}"
+
+[[ -f generate ]] && [[ -x generate ]] && {
+  echo executable generate detected - running
+  ./generate
+}
+
+set +e

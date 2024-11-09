@@ -1,0 +1,29 @@
+formatter: "markdown document"
+
+content: |-
+  {{ .Header }}
+
+  {{ .Inputs }}
+
+  {{ include "__remote-state.txt" }}
+
+  {{ .Outputs }}
+
+  ## Resources
+
+  {{ range .Module.Resources }}
+  - {{ .GetMode }}.{{ .Spec }} ({{ .Position.Filename }}#{{ .Position.Line }})
+  {{- end }}
+
+settings:
+  anchor: false
+  hide-empty: true
+  html: false
+
+output:
+  file: README.md
+  mode: inject
+  template: |-
+    <!-- BEGIN_TF_DOCS -->
+    {{ .Content }}
+    <!-- END_TF_DOCS -->

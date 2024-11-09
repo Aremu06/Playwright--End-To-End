@@ -1,0 +1,34 @@
+products:
+  defaultProduct:
+    baseProductId: "0cde49fb-7082-4747-bd96-e431e28af12d"
+    parentVendorCode: null
+    ean: "6712345679811"
+    sku: "E2E_TEST_PRODUCT"
+    pimId: "ESPV999999"
+    title: "TEST Default Title"
+    description: "TEST PRODUCT"
+    seoTitle: "TEST SEO TITLE"
+    seoDescription: "TEST SEO DESCRIPTION"
+    contentSize: "80g"
+    dimensions:
+      length: "10.4"
+      width: "8.9"
+      height: "20"
+      nettoWeight: "80"
+      bruttoWeight: "100"
+    tags: #  values must be in the Tags attribute option list  
+      - "seasonal"
+      - "domestic"
+      - "topseller"
+      - "Vegan"
+  
+  designerWheyStracciatella:
+    inheritsFrom: defaultProduct
+    parentVendorCode: "esn_designer_whey_protein_stracciatella"
+  
+  anotherProduct:
+    inheritsFrom: designerWheyStracciatella
+    title: "TEST Another Product"
+    contentSize: "85g"
+    dimensions:
+      length: "11"

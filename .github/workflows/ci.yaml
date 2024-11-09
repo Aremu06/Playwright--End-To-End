@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'infrastructure/**'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'infrastructure/**'
+
+permissions:
+  id-token: write # This is required for requesting the JWT through OIDC
+  contents: write # This is required for dependabot auto-merge
+  pull-requests: write # This is required for dependabot auto-merge
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Build CI image
+        run: |
+          docker build \
+            --provenance=false \
+            --file docker/Dockerfile \
+            --tag ci \
+            --target development \
+            --load \
+            .
+          
+      - name: Linting
+        run: docker run --rm --entrypoint= ci npm run lint
+        
+      - name: Prettier
+        run: docker run --rm --entrypoint= ci npm run prettier

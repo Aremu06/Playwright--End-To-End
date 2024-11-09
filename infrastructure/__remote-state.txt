@@ -1,0 +1,18 @@
+## Remote State
+
+[Usage example](https://developer.hashicorp.com/terraform/language/state/remote-state-data#example-usage-remote-backend)
+
+```hcl
+data "terraform_remote_state" "end-to-end-tests" {
+  backend = "s3"
+
+  config = {
+    bucket = "tqg-tf.core.testing"
+    key    = "outputs/end-to-end-tests/eu-central-1/end-to-end-tests.tfstate"
+    region = "eu-central-1"
+  }
+}
+```
+
+**Attention**: Replace the environment "testing" in the bucket name
+accordingly!

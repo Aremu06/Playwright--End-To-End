@@ -1,0 +1,5 @@
+.terraform/
+__terraform.tf
+__.auto.tfvars
+__locals.tf
+.venv/
